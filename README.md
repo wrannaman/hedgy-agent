@@ -1,5 +1,7 @@
 # Hedgy Agent
 
+[hedgy.fund](https://hedgy.fund) · [Agent quickstart](docs/AGENT_QUICKSTART.md)
+
 **Give your agent a research desk, not your brokerage password.**
 
 Hedgy turns portfolio snapshots and market data into explainable research and
