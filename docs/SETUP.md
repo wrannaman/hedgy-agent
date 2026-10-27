@@ -2,7 +2,7 @@
 
 ## CSV-only: no broker account required
 
-Clone the repository or extract its source ZIP. Python 3.11–3.13 is supported.
+Clone the repository. Python 3.11–3.13 is supported.
 Create `.venv` in the checkout, install with `python -m pip install -e .`, then
 run `hedgy doctor` and `hedgy demo` using that environment's executables.
 This editable checkout is the supported installation: strategies and local state

@@ -11,9 +11,6 @@ system with independent strategies under `trading/strategies/`.
 4. Success means `DOCTOR OK`, `DEMO OK`, and valid JSON reports at the printed paths.
 5. Explain the synthetic report, then help the user choose CSV-only or optional live data.
 
-Windows executables are under `.venv\Scripts\`. A downloaded ZIP also works;
-installation does not require Git or an agent-specific plugin.
-
 ## Authority and secrets
 
 - Research, offline demos, tests, and code changes requested by the user are allowed.

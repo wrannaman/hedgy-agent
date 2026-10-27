@@ -1,8 +1,6 @@
-# Agent quickstart
+# Quickstart
 
-Goal: get a new user from checkout to an explained research report in minutes,
-without credentials or brokerage access. Works with any coding agent and a terminal.
-The project is a headless scheduled research bot, not a trading app UI.
+Install and run an offline research report.
 
 **Toy project: do not use with real money.** Assume complete loss of any capital
 exposed; options/leverage can lose more than initial capital. Read
@@ -19,9 +17,6 @@ python3 -m venv .venv
 .venv/bin/hedgy doctor
 .venv/bin/hedgy demo
 ```
-
-Windows: replace `python3` with `py -3` for venv creation and executable paths with
-`.venv\Scripts\python` / `.venv\Scripts\hedgy`.
 
 Expected signals: `DOCTOR OK`, `DEMO OK`, `Reports: <new directory>`, and
 `Manifest: <directory>/manifest.json`. Read the manifest, then its two JSON reports.
@@ -61,9 +56,9 @@ interpreting live candidates. A candidate passing a gate is never permission to 
 
 | Symptom | Action |
 | --- | --- |
-| `hedgy` not on PATH | Use `.venv/bin/hedgy` (Windows `.venv\Scripts\hedgy`) |
+| `hedgy` not on PATH | Use `.venv/bin/hedgy` |
 | Python below 3.11 | Install a supported Python and recreate the virtual environment |
-| `Source checkout` error | Run editable installation from a clone or extracted source ZIP; standalone wheel installs are unsupported |
+| `Source checkout` error | Run editable installation from a clone; standalone wheel installs are unsupported |
 | Demo cannot write output | Choose a new writable directory; it never overwrites an existing directory |
 | Stale sample warning | Expected for fixed synthetic input; use a dated current snapshot for real analysis |
 | Missing CSVs | Check `--positions-dir` and required columns; one account/date per file |

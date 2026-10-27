@@ -1,24 +1,17 @@
-# Hedgy Agent
+# Hedgy
 
-[hedgy.fund](https://hedgy.fund) · [Agent quickstart](docs/AGENT_QUICKSTART.md)
+An options research bot. It finds rich options and sends me trade ideas.
+I still approve every single order by hand.
 
-**Give your agent a research desk, not your brokerage password.**
+The code also analyzes portfolio snapshots. It never submits orders.
 
-Hedgy is a headless options-research bot: scheduled Python scripts, terminal
-output, and optional alerts—not a dashboard or trading app. It turns snapshots
-and market data into research ideas and never submits orders. Start with the
-offline demo, then explore the code with your agent.
+Experimental. Not financial advice. **Do not use with real money.** Assume complete
+loss of any capital exposed; options and leverage can lose more than the initial
+capital. Provided without warranty. [Full disclaimer](docs/DISCLAIMER.md).
 
-> **TOY PROJECT. DO NOT USE WITH REAL MONEY.** Research, education, and paper
-> experiments only. Assume **COMPLETE LOSS** of any capital exposed. Options and
-> leverage can lose more than your initial capital. Outputs may be wrong,
-> incomplete, or stale. No financial advice, promised returns, or warranty.
-> Read the [full disclaimer](docs/DISCLAIMER.md) and [MIT license](LICENSE).
+## Install
 
-## First useful result
-
-Python **3.11–3.13**. macOS, Linux, or Windows with a terminal. From a clone or
-[downloaded ZIP](https://github.com/wrannaman/hedgy-agent/archive/refs/heads/main.zip):
+Python 3.11–3.13 on macOS or Linux:
 
 ```sh
 git clone https://github.com/wrannaman/hedgy-agent.git
@@ -28,68 +21,34 @@ python3 -m venv .venv
 .venv/bin/hedgy demo
 ```
 
-On Windows use `py -3 -m venv .venv`, then `.venv\Scripts\python -m pip install -e .`
-and `.venv\Scripts\hedgy demo`. No account, API key, agent subscription, or network
-access is needed **after installation**. The command prints `DEMO OK` and a report
-folder containing concentration, cash, gain/loss, and cash-raise analysis for
-synthetic holdings. It creates a new temporary directory each time.
+The offline demo uses synthetic holdings and prints its report directory. No
+account or API key is needed. Run `.venv/bin/hedgy doctor` to check your setup.
 
-### Hand it to your agent
-
-Copy this into Codex, Claude Code, or another coding agent in the checkout:
-
-> Read AGENTS.md and docs/AGENT_QUICKSTART.md. Set up this checkout in a local
-> virtual environment, run the offline demo and doctor, then explain the sample
-> portfolio report. Keep credentials and real holdings out of chat and Git.
-> Help me choose CSV-only portfolio analysis or the optional Schwab integration.
-> Do not enable notifications, scheduling, or place orders.
-
-## Use your own portfolio
+## Portfolio analysis
 
 ```sh
 .venv/bin/hedgy init
-# Edit trading/accounts.local.json with local aliases and tax/bucket metadata.
-# Save broker-independent CSV snapshots in ignored trading/positions/.
+# Configure trading/accounts.local.json and add CSVs to trading/positions/.
 .venv/bin/hedgy portfolio sweep --positions-dir trading/positions
 .venv/bin/hedgy portfolio rebalance --positions-dir trading/positions --target 5000
 ```
 
-CSV analysis is offline by default and works with any broker. See the
-[input schema and sample](trading/examples/README.md). Missing cost basis stays
-unknown and is excluded from tax calculations. Review the example tax assumptions
-before using a cash-raise estimate.
+Any broker's normalized CSV works. See the [CSV format](trading/examples/README.md).
+Reports use snapshot prices by default. Missing cost basis is excluded from tax
+calculations; review tax assumptions before interpreting cash-raise estimates.
 
-## What is inside
+Live options research requires an optional Schwab connection. See
+[setup](docs/SETUP.md), [configuration](docs/CONFIGURATION.md), and
+[strategy rules](trading/strategies/csp_401k/RULES.md). Scheduling is optional and
+never enabled by installation. The CSP policy can deploy the entire configured
+cash sleeve; read the rules before running live research.
 
-- **Portfolio watch:** concentration, cash, price moves, gains/losses, tax-aware
-  cash-raise planning, and trailing-stop review items.
-- **Options research:** cash-secured-put screening and position management,
-  covered-call recommendations, catalyst checks, and decision journals.
-- **Research sleeves:** index variance premium, trend, factor tilts, and
-  post-earnings drift. These are research modules, not plug-and-play mandates.
-- **Optional scheduled agent:** macOS launchd + Claude CLI for a daily research
-  pass and Slack recap. Installation never enables it automatically.
-
-[Schwab setup](docs/SETUP.md) · [Configuration](docs/CONFIGURATION.md) ·
-[Agent quickstart](docs/AGENT_QUICKSTART.md) · [Architecture](docs/ARCHITECTURE.md)
-
-Live options scanning currently uses Schwab quotes and chains. Another broker's
-CSV works today; replacing the live options data provider requires an adapter.
-The inherited CSP sizing policy can deploy the entire configured cash sleeve.
-Read its [rules](trading/strategies/csp_401k/RULES.md) before enabling live research.
-Optional broker connections are for research, not permission to trade with real
-money. This toy project is provided AS IS and AS AVAILABLE without warranty;
-authors and contributors disclaim liability to the extent permitted by applicable
-law and the MIT license. See the [full disclaimer](docs/DISCLAIMER.md).
-
-## Contribute
+## Development
 
 ```sh
 .venv/bin/python -m pip install -e '.[dev]'
 .venv/bin/hedgy test
 ```
 
-`hedgy test` preserves per-strategy import isolation. Tests and demos need no
-credentials and must never contact brokerage or notification services.
-See [CONTRIBUTING.md](CONTRIBUTING.md) for checks and [SECURITY.md](SECURITY.md)
-for private-data handling. MIT licensed.
+Use the isolated test harness. See [CONTRIBUTING.md](CONTRIBUTING.md) and
+[SECURITY.md](SECURITY.md). [MIT license](LICENSE).
