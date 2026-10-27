@@ -4,9 +4,16 @@
 
 **Give your agent a research desk, not your brokerage password.**
 
-Hedgy turns portfolio snapshots and market data into explainable research and
-recommendations. Start with a working offline portfolio demo, then add your own
-holdings or optional Schwab options data. It never submits orders.
+Hedgy is a headless options-research bot: scheduled Python scripts, terminal
+output, and optional alerts—not a dashboard or trading app. It turns snapshots
+and market data into research ideas and never submits orders. Start with the
+offline demo, then explore the code with your agent.
+
+> **TOY PROJECT. DO NOT USE WITH REAL MONEY.** Research, education, and paper
+> experiments only. Assume **COMPLETE LOSS** of any capital exposed. Options and
+> leverage can lose more than your initial capital. Outputs may be wrong,
+> incomplete, or stale. No financial advice, promised returns, or warranty.
+> Read the [full disclaimer](docs/DISCLAIMER.md) and [MIT license](LICENSE).
 
 ## First useful result
 
@@ -70,8 +77,10 @@ Live options scanning currently uses Schwab quotes and chains. Another broker's
 CSV works today; replacing the live options data provider requires an adapter.
 The inherited CSP sizing policy can deploy the entire configured cash sleeve.
 Read its [rules](trading/strategies/csp_401k/RULES.md) before enabling live research.
-This is experimental research software, not personalized financial advice or a
-promise of returns. You own every investment decision and order.
+Optional broker connections are for research, not permission to trade with real
+money. This toy project is provided AS IS and AS AVAILABLE without warranty;
+authors and contributors disclaim liability to the extent permitted by applicable
+law and the MIT license. See the [full disclaimer](docs/DISCLAIMER.md).
 
 ## Contribute
 

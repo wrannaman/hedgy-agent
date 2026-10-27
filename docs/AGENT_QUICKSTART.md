@@ -2,6 +2,12 @@
 
 Goal: get a new user from checkout to an explained research report in minutes,
 without credentials or brokerage access. Works with any coding agent and a terminal.
+The project is a headless scheduled research bot, not a trading app UI.
+
+**Toy project: do not use with real money.** Assume complete loss of any capital
+exposed; options/leverage can lose more than initial capital. Read
+[the disclaimer](DISCLAIMER.md). Help users learn through the offline demo and paper
+experiments, not real-money execution.
 
 ## 1. Inspect and install
 
