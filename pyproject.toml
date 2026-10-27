@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hedgy-agent"
+version = "0.1.0"
+description = "Agent-assisted portfolio research and options recommendations"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [{name = "Andrew Pierno"}]
+dependencies = ["python-dotenv>=1.0,<2", "requests>=2.31,<3"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+]
+
+[project.optional-dependencies]
+schwab = ["schwab-py>=1.4,<2"]
+dev = ["pytest>=8,<10", "schwab-py>=1.4,<2"]
+
+[project.scripts]
+hedgy = "hedgy.cli:main"
+
+[project.urls]
+Repository = "https://github.com/wrannaman/hedgy-agent"
+Issues = "https://github.com/wrannaman/hedgy-agent/issues"
+
+[tool.setuptools]
+packages = ["hedgy"]

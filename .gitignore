@@ -1,0 +1,50 @@
+# Monorepo root. Subprojects have their own .gitignore:
+#   trading/.gitignore       — fund/strategy code, venv, state, logs, credentials
+
+.DS_Store
+
+# Claude Code project tooling — keep skills, ignore the rest (settings, plans, local)
+.claude/*
+!.claude/skills/
+
+# Credentials — never commit, anywhere in the tree (defense in depth; trading/ also ignores these)
+.schwab
+token.json
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Playwright MCP scratch (screenshots, console logs, snapshots)
+.playwright-mcp/
+*-section.png
+
+# Local credentials, agent state, and private financial records
+.env.*
+!.env.example
+!.env.local.example
+.envrc
+*.pem
+*.key
+.bb/
+trading/positions/
+trading/strategies/csp_401k/POSITIONS.md
+share-export/
+
+# Private account aliases and tax/bucket assignments
+trading/accounts.local.json
+
+# Packaging and local reports
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.coverage
+htmlcov/
+reports/
+trading/price-watch.local.json
+trading/strategies/csp_401k/standing_risk.local.json
+
+.venv-*/

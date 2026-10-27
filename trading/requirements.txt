@@ -1,0 +1,5 @@
+# Compatibility path for running all legacy live-data scripts directly.
+# Prefer `python -m pip install -e '.[schwab]'` from the repository root.
+python-dotenv>=1.0,<2
+requests>=2.31,<3
+schwab-py>=1.4,<2

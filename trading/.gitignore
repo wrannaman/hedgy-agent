@@ -1,0 +1,11 @@
+.env
+.schwab
+token.json
+__pycache__/
+*.pyc
+.venv/
+logs/
+state/
+archive/*.csv
+.claude/*
+!.claude/skills/

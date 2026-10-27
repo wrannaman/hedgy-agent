@@ -1,0 +1,9 @@
+{
+  "_README": [
+    "Empty shared default. Owner-specific risk facts belong in ignored standing_risk.local.json.",
+    "An agent may record a newly discovered risk; only the account owner may clear it.",
+    "See docs/CONFIGURATION.md and RULES.md sections 5a and 5b."
+  ],
+  "disqualifiers": [],
+  "supply_events": []
+}

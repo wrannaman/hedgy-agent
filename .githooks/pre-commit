@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Run the trading test suites before every commit. This money moves for real; a
+# commit that breaks a gate must not become a commit.
+#
+# Tracked in the repo (not .git/hooks, which no one can review) and activated with:
+#     git config core.hooksPath .githooks
+#
+# Takes ~1s. There is no "only if trading/ changed" shortcut — the whole point is that
+# it runs unconditionally, so nobody has to predict which edit was the load-bearing one.
+#
+# To bypass in a genuine emergency: git commit --no-verify. If you reach for that on a
+# rules/gate change, the failing test is telling you the change is wrong.
+set -uo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+RUNNER="$ROOT/trading/run_tests.sh"
+
+[ -x "$RUNNER" ] || { echo "pre-commit: $RUNNER missing or not executable"; exit 1; }
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: install gitleaks to scan staged changes (macOS: brew install gitleaks)"
+  exit 1
+fi
+if ! gitleaks git "$ROOT" --pre-commit --staged --redact=100 --no-banner; then
+  echo "pre-commit: secret scan failed — commit aborted."
+  exit 1
+fi
+
+echo "pre-commit: running trading test suites…"
+if ! "$RUNNER"; then
+  echo
+  echo "pre-commit: TESTS FAILED — commit aborted."
+  exit 1
+fi

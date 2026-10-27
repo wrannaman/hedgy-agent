@@ -1,0 +1,1 @@
+"""Public-news catalyst checker."""

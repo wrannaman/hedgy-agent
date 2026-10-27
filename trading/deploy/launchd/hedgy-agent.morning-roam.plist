@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>hedgy-agent.morning-roam</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>__TRADING_ROOT__/strategies/csp_401k/run_daily.sh</string>
+    </array>
+
+    <!-- Weekdays (1=Mon .. 5=Fri) at 6:35 AM PT, 5 min after the 9:30 ET open.
+         If the Mac is asleep at 6:35, launchd runs it on the next wake. -->
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>6</integer><key>Minute</key><integer>35</integer></dict>
+        <dict><key>Weekday</key><integer>2</integer><key>Hour</key><integer>6</integer><key>Minute</key><integer>35</integer></dict>
+        <dict><key>Weekday</key><integer>3</integer><key>Hour</key><integer>6</integer><key>Minute</key><integer>35</integer></dict>
+        <dict><key>Weekday</key><integer>4</integer><key>Hour</key><integer>6</integer><key>Minute</key><integer>35</integer></dict>
+        <dict><key>Weekday</key><integer>5</integer><key>Hour</key><integer>6</integer><key>Minute</key><integer>35</integer></dict>
+    </array>
+
+    <!-- Run at load/boot to catch a calendar trigger missed while powered off.
+         run_daily.sh skips completed mornings and checks market hours, so
+         reloading the job cannot duplicate a completed recap. -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>__TRADING_ROOT__/strategies/csp_401k/logs/launchd-morning-roam.log</string>
+    <key>StandardErrorPath</key>
+    <string>__TRADING_ROOT__/strategies/csp_401k/logs/launchd-morning-roam.log</string>
+</dict>
+</plist>

@@ -1,0 +1,42 @@
+name: Checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install core only
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install -e .
+      - name: Offline first run without brokerage dependencies
+        run: |
+          .venv/bin/hedgy doctor
+          .venv/bin/hedgy demo --output "$RUNNER_TEMP/hedgy-demo"
+      - name: Development dependencies and isolated suites
+        run: |
+          .venv/bin/python -m pip install -e '.[dev]'
+          .venv/bin/hedgy test
+      - name: Shell and plist syntax
+        run: |
+          bash -n trading/run_tests.sh trading/strategies/csp_401k/run_daily.sh trading/strategies/csp_401k/watchdog.sh trading/deploy/launchd/install.sh
+          .venv/bin/python -c 'import pathlib,plistlib; [plistlib.loads(p.read_bytes()) for p in pathlib.Path("trading/deploy/launchd").glob("*.plist")]'
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

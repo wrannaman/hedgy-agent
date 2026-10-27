@@ -1,0 +1,5 @@
+{
+  "symbol": "EXAMPLE",
+  "recovery_price": 120,
+  "zones": [{"name": "research-zone", "price": 100}]
+}

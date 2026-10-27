@@ -1,0 +1,7 @@
+{
+  "accounts": {
+    "demo-brokerage": {"label": "Example brokerage", "tax_treatment": "taxable", "bucket": "taxable"},
+    "demo-retirement": {"label": "Example retirement", "tax_treatment": "tax_deferred", "bucket": "retirement"},
+    "demo-roth": {"label": "Example Roth", "tax_treatment": "tax_free", "bucket": "roth"}
+  }
+}
