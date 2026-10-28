@@ -29,8 +29,8 @@ PYTHON="${HEDGY_PYTHON:-$REPO_ROOT/../.venv/bin/python3}"
 [ -x "$PYTHON" ] || PYTHON="$REPO_ROOT/.venv/bin/python3"
 [ -x "$PYTHON" ] || PYTHON="$(command -v python3)"
 export PATH="$(dirname "$PYTHON"):$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
-# Use the authenticated CLI's own default unless the operator opts into a model.
-CLAUDE_MODEL="${CLAUDE_MODEL:-}"
+# Pin scheduled research to Opus 5.5; operators can override explicitly.
+CLAUDE_MODEL="${CLAUDE_MODEL:-claude-opus-5-5}"
 CLAUDE_CMD=("${CLAUDE_BIN:-claude}")
 [ -z "$CLAUDE_MODEL" ] || CLAUDE_CMD+=(--model "$CLAUDE_MODEL")
 export PYTHONPATH="$REPO_ROOT"

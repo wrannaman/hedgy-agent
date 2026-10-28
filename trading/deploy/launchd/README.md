@@ -8,7 +8,7 @@ Review its runbook and local access before enabling. Never submit orders.
 Prerequisites: a source checkout with root `.venv`, `.[schwab]`, explicit
 `hedgy auth`, reviewed strategy policy/account scope, authenticated `claude` on PATH,
 and `SLACK_TRADING_WEBHOOK` if you want successful recap delivery. The script uses
-the CLI's default model; optional `CLAUDE_MODEL` / `CLAUDE_BIN` override it. It never
+Claude Opus 5.5 (`claude-opus-5-5`) by default; optional `CLAUDE_MODEL` / `CLAUDE_BIN` override it. It never
 reads a shell profile for an OAuth token. Authenticate the CLI through its own setup.
 
 The machine timezone must be America/Los_Angeles for these Pacific schedules:

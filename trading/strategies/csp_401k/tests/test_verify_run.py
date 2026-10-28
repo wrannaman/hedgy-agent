@@ -106,3 +106,8 @@ kill_tree() { kill "$1"; }
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_scheduler_defaults_to_opus_55():
+    source = (Path(__file__).resolve().parents[1] / "run_daily.sh").read_text()
+    assert 'CLAUDE_MODEL="${CLAUDE_MODEL:-claude-opus-5-5}"' in source

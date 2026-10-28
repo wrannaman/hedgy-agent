@@ -19,7 +19,7 @@ It never overwrites existing files or asks an agent to view secrets.
 | `HEDGY_STANDING_RISK_CONFIG` | Alternate risk JSON path |
 | `trading/price-watch.local.json` | Optional opt-in price watcher; absent means disabled |
 | `HEDGY_PRICE_WATCH_CONFIG` | Alternate watcher JSON path |
-| `CLAUDE_BIN`, `CLAUDE_MODEL` | Optional scheduler CLI/model overrides; defaults to authenticated CLI settings |
+| `CLAUDE_BIN`, `CLAUDE_MODEL` | Optional scheduler CLI/model overrides; defaults to Claude Opus 5.5 (`claude-opus-5-5`) |
 | `HEDGY_PYTHON` | Explicit scheduler/test interpreter override |
 
 The portfolio CLI defaults to offline CSV prices. `--live-quotes` explicitly opts
