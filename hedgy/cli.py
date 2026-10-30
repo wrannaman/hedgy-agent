@@ -100,7 +100,7 @@ def doctor(root: Path, live: bool) -> int:
         for name, ok in checks[-4:]:
             print(f'{"OK" if ok else "MISSING"} {name}')
     else:
-        print('Optional: Schwab market data, Finnhub earnings, Slack, Claude scheduler (not needed for CSV/demo).')
+        print('Optional: Schwab market data, Finnhub earnings, Slack, Claude/Codex scheduler (not needed for CSV/demo).')
     ok = all(passed for _, passed in checks)
     print('DOCTOR OK' if ok else 'DOCTOR: setup incomplete; see docs/SETUP.md')
     return 0 if ok else 1

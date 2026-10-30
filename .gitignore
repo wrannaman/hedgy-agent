@@ -48,3 +48,6 @@ trading/price-watch.local.json
 trading/strategies/csp_401k/standing_risk.local.json
 
 .venv-*/
+
+# Non-secret scheduler provider example
+!trading/.env.agent.example

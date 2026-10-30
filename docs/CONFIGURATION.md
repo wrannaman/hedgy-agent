@@ -68,3 +68,11 @@ block within the contract window. An agent may record a new risk, never clear on
 on its own. Missing/malformed explicit override files keep the existing loader's
 fail-open behavior **and** emit a health warning: repair it before trusting research.
 Do not treat the absence of a block as a current catalyst check.
+
+## Scheduled agent
+
+`AGENT_PROVIDER=claude|codex` selects the CLI; Claude is the default.
+`AGENT_MODEL` overrides either provider model; `CLAUDE_MODEL` defaults to
+`claude-opus-5-5`, while `CODEX_MODEL` defaults to the Codex CLI configuration.
+See [provider setup](../trading/deploy/AGENT_PROVIDERS.md) for authentication,
+local configuration, executable paths, timeouts, and deployment.

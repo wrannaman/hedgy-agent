@@ -43,3 +43,5 @@ done
 
 One public checkout owns these labels. They are distinct from legacy private
 `fund.*` jobs. The installer must be invoked deliberately; demo/init never runs it.
+
+For Claude Code or Codex CLI selection, see [agent configuration](../AGENT_PROVIDERS.md).

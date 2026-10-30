@@ -52,3 +52,5 @@ cash sleeve; read the rules before running live research.
 
 Use the isolated test harness. See [CONTRIBUTING.md](CONTRIBUTING.md) and
 [SECURITY.md](SECURITY.md). [MIT license](LICENSE).
+
+Choose Claude Code or Codex CLI for scheduled research: [agent configuration](trading/deploy/AGENT_PROVIDERS.md).

@@ -31,8 +31,7 @@ PYTHON="${HEDGY_PYTHON:-$REPO_ROOT/../.venv/bin/python3}"
 export PATH="$(dirname "$PYTHON"):$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
 # Pin scheduled research to Opus 5.5; operators can override explicitly.
 CLAUDE_MODEL="${CLAUDE_MODEL:-claude-opus-5-5}"
-CLAUDE_CMD=("${CLAUDE_BIN:-claude}")
-[ -z "$CLAUDE_MODEL" ] || CLAUDE_CMD+=(--model "$CLAUDE_MODEL")
+source "$REPO_ROOT/strategies/csp_401k/agent_provider.sh"
 export PYTHONPATH="$REPO_ROOT"
 
 mkdir -p logs state
@@ -217,34 +216,32 @@ kill_tree() {
   # A bounded probe prevents an unavailable agent from blocking the pipeline.
   RC=0; TIMED_OUT=0
   CLAUDE_AUTH_OK=1
-  "${CLAUDE_CMD[@]}" -p "reply with exactly: PONG" > "logs/claude-probe-$DAY.log" 2>&1 &
+  "${AGENT_PROBE_CMD[@]}" > "logs/$AGENT_PROVIDER-probe-$DAY.log" 2>&1 &
   PROBE_PID=$!
   ( sleep 60; kill -0 "$PROBE_PID" 2>/dev/null && kill_tree "$PROBE_PID"; ) &
   PROBE_KILLER=$!
   wait "$PROBE_PID"; PROBE_RC=$?
   kill "$PROBE_KILLER" 2>/dev/null
-  if [ "$PROBE_RC" -ne 0 ] || ! grep -qx 'PONG' "logs/claude-probe-$DAY.log"; then
+  if [ "$PROBE_RC" -ne 0 ] || ! grep -qx 'PONG' "logs/$AGENT_PROVIDER-probe-$DAY.log"; then
     CLAUDE_AUTH_OK=0
     RC=1
-    echo "CLAUDE PREFLIGHT FAILED (rc=$PROBE_RC) — expected PONG; see logs/claude-probe-$DAY.log"
-    [ "$MODE" = "morning" ] && slack_post ":rotating_light: csp_401k Claude preflight failed today ($DAY). Check logs/claude-probe-$DAY.log for the actual error; a failed probe alone does not establish expired credentials. No fresh recommendation."
+    echo "$AGENT_LABEL PREFLIGHT FAILED (rc=$PROBE_RC) — expected PONG; see logs/$AGENT_PROVIDER-probe-$DAY.log"
+    [ "$MODE" = "morning" ] && slack_post ":rotating_light: csp_401k $AGENT_LABEL preflight failed today ($DAY). Check logs/$AGENT_PROVIDER-probe-$DAY.log for the actual error; a failed probe alone does not establish expired credentials. No fresh recommendation."
   else
-    echo "claude auth: OK"
+    echo "$AGENT_LABEL auth: OK ($AGENT_MODEL_LABEL)"
   fi
 
-  CLAUDE_TIMEOUT=1200        # 20 min per attempt — screener (~3 min) + monitor + judgment fit easily
-  CLAUDE_MAX_ATTEMPTS=2      # 1 retry; worst case 40 min, still before the 1pm PT close
+  CLAUDE_TIMEOUT="${AGENT_TIMEOUT:-1200}"        # 20 min per attempt — screener (~3 min) + monitor + judgment fit easily
+  CLAUDE_MAX_ATTEMPTS="${AGENT_MAX_ATTEMPTS:-2}"      # 1 retry; worst case 40 min, still before the 1pm PT close
   CLAUDE_RETRY_BACKOFF=15    # brief pause between attempts (rides out a transient API/rate-limit blip)
 
   # Runs claude once under a hard wall-clock cap. Sets globals RC and TIMED_OUT.
   run_claude_once() {
-    local CLAUDE_CMD=("${CLAUDE_BIN:-claude}")
-    [ -z "${CLAUDE_MODEL:-}" ] || CLAUDE_CMD+=(--model "$CLAUDE_MODEL")
     local flag="${TMPDIR:-/tmp}/csp_401k-claude-timeout-$DAY-$$-$1"
     rm -f "$flag"
     local started
     started="$(python3 -c 'import time; print(time.time())')"
-    "${CLAUDE_CMD[@]}" --dangerously-skip-permissions -p \
+    "${AGENT_RUN_CMD[@]}" \
       "Execute the scheduled csp_401k run now. Read CRON_PROMPT.md from this directory and carry out its runbook to completion in this turn. Run the scans in the foreground and write the fresh decision to $REPO_ROOT/state/agent_decision.json. This is an execution request, not background context. Do not ask what to do. Do not place orders or send any messages. Do not change code, configuration, strategy rules, or this runbook. If blocked, report the exact failed command and error." &
     local pid=$!
     (
@@ -265,7 +262,7 @@ kill_tree() {
     rm -f "$flag"
     # A greeting, partial run, or stale same-day files must never count as success.
     if [ "$RC" -eq 0 ] && ! python3 verify_run.py "$started"; then
-      echo "claude exited successfully but did not complete fresh scan/screen/decision outputs"
+      echo "$AGENT_LABEL exited successfully but did not complete fresh scan/screen/decision outputs"
       RC=1
     fi
   }
@@ -275,9 +272,9 @@ kill_tree() {
   while : ; do
     run_claude_once "$ATTEMPT"
     if [ "$TIMED_OUT" -eq 1 ]; then
-      echo "claude TIMED OUT (>${CLAUDE_TIMEOUT}s) — killed, RC=$RC (attempt $ATTEMPT/$CLAUDE_MAX_ATTEMPTS)"
+      echo "$AGENT_LABEL TIMED OUT (>${CLAUDE_TIMEOUT}s) — killed, RC=$RC (attempt $ATTEMPT/$CLAUDE_MAX_ATTEMPTS)"
     else
-      echo "claude exit=$RC (attempt $ATTEMPT/$CLAUDE_MAX_ATTEMPTS)"
+      echo "$AGENT_LABEL exit=$RC (attempt $ATTEMPT/$CLAUDE_MAX_ATTEMPTS)"
     fi
     # RC 0 now requires fresh outputs from this attempt, not just process success.
     if [ "$TIMED_OUT" -eq 0 ] && [ "$RC" -eq 0 ]; then
@@ -285,10 +282,10 @@ kill_tree() {
     fi
     if [ "$ATTEMPT" -ge "$CLAUDE_MAX_ATTEMPTS" ]; then
       if [ "$TIMED_OUT" -eq 1 ]; then
-        echo "claude exhausted $CLAUDE_MAX_ATTEMPTS attempts — last one TIMED OUT"
+        echo "$AGENT_LABEL exhausted $CLAUDE_MAX_ATTEMPTS attempts — last one TIMED OUT"
         [ "$MODE" = "morning" ] && slack_post ":rotating_light: csp_401k agent hung past ${CLAUDE_TIMEOUT}s on all $CLAUDE_MAX_ATTEMPTS tries today ($DAY) and was killed — no fresh scan. Check logs/cron-$DAY.log"
       else
-        echo "claude exhausted $CLAUDE_MAX_ATTEMPTS attempts — last exit=$RC"
+        echo "$AGENT_LABEL exhausted $CLAUDE_MAX_ATTEMPTS attempts — last exit=$RC"
         [ "$MODE" = "morning" ] && slack_post ":rotating_light: csp_401k agent failed (exit $RC) on all $CLAUDE_MAX_ATTEMPTS tries today ($DAY). Check logs/cron-$DAY.log"
       fi
       break

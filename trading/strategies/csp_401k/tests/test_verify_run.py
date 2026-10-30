@@ -82,14 +82,17 @@ class VerifyRunTests(unittest.TestCase):
         fake = self.root / "fake-claude"
         fake.write_text("#!/bin/bash\necho 'Ready. What do you need?'\n")
         fake.chmod(0o755)
-        block = block.replace('"${CLAUDE_BIN:-claude}"', str(fake))
+
         verifier = Path(__file__).resolve().parents[1] / "verify_run.py"
         (self.root / "verify_run.py").write_text(verifier.read_text())
-        harness = """
+        harness = f'AGENT_RUN_CMD=("{fake}")\n' + """
 set -u
 DAY=2026-09-17
 REPO_ROOT="$PWD"
 CLAUDE_MODEL=test
+AGENT_LABEL=Test
+AGENT_PROVIDER=claude
+AGENT_MODEL_LABEL=test
 CLAUDE_TIMEOUT=20
 CLAUDE_MAX_ATTEMPTS=2
 CLAUDE_RETRY_BACKOFF=0
