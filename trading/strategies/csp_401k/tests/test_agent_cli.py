@@ -63,3 +63,16 @@ def test_defaults_overrides_and_unknown_provider():
     assert settings({'AGENT_MODEL': 'common', 'CLAUDE_MODEL': 'legacy'})[2] == 'common'
     with pytest.raises(ValueError, match='Unsupported'):
         command({'AGENT_PROVIDER': 'unknown'}, 'test')
+
+
+@pytest.mark.parametrize('mode', ['probe', 'run'])
+def test_cli_cannot_consume_remaining_scheduler_script(tmp_path, mode):
+    import shlex
+    fake = tmp_path / 'stdin-reader'
+    fake.write_text('#!/usr/bin/env python3\nimport sys\nsys.stdin.read()\nprint("PONG")\n')
+    fake.chmod(0o755)
+    env = {**os.environ, 'AGENT_PROVIDER': 'claude', 'CLAUDE_BIN': str(fake)}
+    script = f'{shlex.quote(sys.executable)} {shlex.quote(str(ADAPTER))} {mode} test\nprintf "SCHEDULER_CONTINUES\\n"\n'
+    result = subprocess.run(['bash'], input=script, env=env, capture_output=True, text=True, timeout=5)
+    assert result.returncode == 0
+    assert 'SCHEDULER_CONTINUES' in result.stdout

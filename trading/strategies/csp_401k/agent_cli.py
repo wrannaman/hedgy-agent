@@ -51,11 +51,13 @@ def main():
             if not a.prompt:
                 p.error('run requires a prompt')
             args = command(env, a.prompt)
+            with open(os.devnull) as stdin:
+                os.dup2(stdin.fileno(), 0)
             os.execvpe(args[0], args, env)
         with tempfile.TemporaryDirectory(prefix='hedgy-agent-probe-') as tmp:
             output = Path(tmp) / 'last-message.txt'
             args = command(env, 'Without using tools, reply with exactly: PONG', probe=True, output=output)
-            result = subprocess.run(args, env=env, capture_output=True, text=True)
+            result = subprocess.run(args, env=env, stdin=subprocess.DEVNULL, capture_output=True, text=True)
             final = output.read_text().strip() if provider == 'codex' and output.exists() else result.stdout.strip()
             if result.returncode or final != 'PONG':
                 print(result.stderr, file=sys.stderr, end='')
