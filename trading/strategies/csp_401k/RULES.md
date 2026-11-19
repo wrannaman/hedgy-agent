@@ -18,6 +18,86 @@ stop-loss / sizing backtests). Sources are listed at the bottom.
 
 ---
 
+## The strategy on one page
+
+Start here. The rest of this file is the reasoning and the sources. Every number in
+the two tables is read from `rules.py`; `tests/test_rules_summary.py` fails if this
+page and the code disagree.
+
+**What it is.** Sell cash-secured puts far below the price on volatile stocks, only
+when options look expensive against how much the stock has actually been moving, and
+buy them back at half the credit. The code screens and recommends. A person places
+every order.
+
+### Entry: every row must hold
+
+| Step | Rule | `rules.py` | Value |
+|---|---|---|---|
+| Expiry | Days to expiration at entry, between | `DTE_MIN`, `DTE_MAX` | 28, 45 |
+| Strike depth | Put delta at or below | `MAX_DELTA` | 0.12 |
+| Strike floor | Strike at least this % below the stock price | `MIN_CUSHION_PCT` | 10.0 |
+| Pay | Mid premium at least this % of the cash secured (strike x 100) | `MIN_PREMIUM_PCT` | 2.0 |
+| Liquidity | Bid/ask spread at most this % of the mid | `MAX_SPREAD_PCT` | 15.0 |
+| Edge, in points | At-the-money implied vol minus 30-day realized vol, at least | `ACTIONABLE_VRP` | 15.0 |
+| Edge, as a ratio | At-the-money implied vol divided by 30-day realized vol, at least | `ACTIONABLE_VRP_RATIO` | 1.2 |
+| No chasing | Not today if the stock is up more than this many of its own daily sigmas | `NO_CHASE_SIGMA` | 1.0 |
+| Size | % of deployable cash put into the one position, in whole contracts | `POSITION_TARGET_PCT` | 100.0 |
+
+How the rows combine, in the order the code applies them:
+
+1. `screener.py` sweeps all 169 optionable names in `shared/universe.py` on every run.
+2. For each name it keeps the puts that pass expiry, strike depth, strike floor, pay
+   and liquidity, then takes the one paying the most premium per dollar secured.
+   Premium rises toward the money, so that put sits at about the delta limit.
+3. The two edge rows decide whether the name is a trade (`actionable`) or only
+   watched. Both must hold. Implied vol is measured at the money, not at the strike.
+4. Three things remove a trade that passed: the no-chasing row, a dated share-supply
+   event inside the contract (§5a), and an open company-specific disqualifier (§5b).
+   Earnings inside the contract do not remove it (§5).
+5. A name within `NEAR_52W_LOW_BAND_PCT` (12.0) of its 52-week low that fails strike
+   depth is shown for discussion and is never a recommendation (§1b).
+6. Surviving trades are ranked by premium per dollar secured. The scheduled agent
+   checks the top ones against live quotes and current news (`CRON_PROMPT.md`) and
+   writes zero or more order tickets. Most runs write none.
+7. The account owner decides whether to place a ticket. One position per underlying.
+
+### Exit: the first row that fires wins
+
+| Order | Rule | `rules.py` | Value |
+|---|---|---|---|
+| 1 | Cut if the stock is within this % of the strike | `STRIKE_PROXIMITY_PCT` | 5.0 |
+| 2 | Cut if the put is worth this many times the credit | `STOP_MULTIPLE` | 2.0 |
+| 2a | The stop must show on this many monitor runs in a row | `STOP_CONFIRM_RUNS` | 2 |
+| 2b | The stop cuts by itself only if VIX at entry was at least this; below it, it is an alert | `STOP_HIGH_VIX_ENTRY` | 20.0 |
+| 3 | Close at this % of the credit kept | `PROFIT_TARGET_PCT` | 50 |
+| 4 | At or inside this many days to expiration, close a winner; a far out-of-the-money loser is held | `MANAGE_DTE` | 21 |
+| n/a | Stop opening new trades after this many losses in a row | `MAX_CONSECUTIVE_LOSSES` | 3 |
+
+Row 3 is worked as a standing order: when the put fills, rest a good-till-cancelled
+buy-to-close limit at half the credit, ending on the 21-days-to-expiration date (§3).
+Company-specific bad news is a judgment exit above all of these (§4). An assignment
+starts a wheel cycle (§13).
+
+### What these rules do not capture
+
+- **The final pick is a person's.** The rules produce candidates. Which ticket gets
+  placed, and whether the strike is moved deeper by hand, is discretion and is not
+  encoded here. The maintainer's published trades (hedgy.fund) are a small subset of
+  what the screener surfaced: 13 trades from March to November 2026, with the
+  recorded strikes 25-35% below the stock and most opened on a day the stock was
+  down 3-12%. Replaying the rules mechanically does not reproduce that subset.
+- **A replay has to include the edge rows.** They need each stock's daily
+  at-the-money implied vol and 30-day realized vol. A backtest on delta, strike floor
+  and pay alone tests a looser strategy than this one.
+- **Small premiums are mostly costs.** Commissions and fees are fixed per contract,
+  so on a put sold for $0.05-0.30 they take a large share of the profit. No rule
+  here sets a minimum premium per contract.
+- **No claim of beating the index.** §0 and §9 say why the single-stock edge is thin.
+  A run of wins is what far out-of-the-money puts produce in a rising market and is
+  not evidence of an edge.
+
+---
+
 ## 0. What edge are we actually harvesting? (Read this first.)
 
 Be honest about the engine, because it sizes everything else:

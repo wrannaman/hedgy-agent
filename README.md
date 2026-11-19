@@ -3,6 +3,9 @@
 An options research bot. It finds rich options and sends me trade ideas.
 I still approve every single order by hand.
 
+The exact entry and exit rules are on one page:
+[the strategy on one page](trading/strategies/csp_401k/RULES.md#the-strategy-on-one-page).
+
 The code also analyzes portfolio snapshots. It never submits orders.
 
 Experimental. Not financial advice. **Do not use with real money.** Assume complete

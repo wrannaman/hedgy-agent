@@ -5,6 +5,8 @@ account in local configuration. This module screens cash-secured puts, monitors
 recorded positions, and recommends covered calls against already-owned shares.
 It never submits orders.
 
+The entry and exit rules are summarized at the top of `RULES.md`
+([the strategy on one page](RULES.md#the-strategy-on-one-page)).
 Read `AGENTS.md`, `RULES.md`, and `rules.py` before live research. The inherited
 sizing policy may deploy all available strategy cash into one approved position.
 The project preserves that policy; it does not prescribe it for a new user.
